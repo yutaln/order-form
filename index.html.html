@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ご注文フォーム</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #2D5016;
+    --green-mid:  #4A7C59;
+    --green-light:#E8F5E0;
+    --green-pale: #F4FAF0;
+    --gold:       #C8963A;
+    --text:       #1A1A1A;
+    --muted:      #6B7280;
+    --border:     #D1E0C8;
+    --white:      #FFFFFF;
+    --radius:     12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Noto Sans JP',sans-serif;
+    background:var(--green-pale);
+    color:var(--text);
+    min-height:100vh;
+    padding:0 0 60px;
+  }
+
+  /* ヘッダー */
+  .header{
+    background:var(--green-dark);
+    color:#fff;
+    text-align:center;
+    padding:28px 20px 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .header::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(
+      45deg,
+      transparent,transparent 20px,
+      rgba(255,255,255,0.03) 20px,rgba(255,255,255,0.03) 21px
+    );
+  }
+  .header-label{
+    font-size:11px;
+    letter-spacing:0.15em;
+    color:rgba(255,255,255,0.6);
+    margin-bottom:8px;
+  }
+  .header h1{
+    font-family:'Noto Serif JP',serif;
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:0.05em;
+    color:#fff;
+  }
+  .header-sub{
+    font-size:12px;
+    color:rgba(255,255,255,0.55);
+    margin-top:6px;
+  }
+
+  /* メイン */
+  .container{max-width:480px;margin:0 auto;padding:0 16px;}
+
+  /* セクション */
+  .section{
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-top:16px;
+    overflow:hidden;
+  }
+  .section-head{
+    background:var(--green-light);
+    padding:10px 16px;
+    font-size:12px;
+    font-weight:500;
+    color:var(--green-dark);
+    letter-spacing:0.05em;
+    border-bottom:1px solid var(--border);
+  }
+  .section-body{padding:16px;}
+
+  /* フォーム部品 */
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:500;
+    color:var(--muted);
+    margin-bottom:5px;
+    letter-spacing:0.04em;
+  }
+  label .req{color:#C0392B;margin-left:2px;}
+  input[type=text],input[type=tel],input[type=email],select,textarea{
+    width:100%;
+    padding:11px 13px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:15px;
+    font-family:'Noto Sans JP',sans-serif;
+    color:var(--text);
+    background:#fff;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+    -webkit-appearance:none;
+  }
+  input:focus,select:focus,textarea:focus{
+    border-color:var(--green-mid);
+    box-shadow:0 0 0 3px rgba(74,124,89,0.12);
+  }
+  textarea{resize:vertical;min-height:72px;}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%236B7280'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+
+  /* 商品カード */
+  .product-card{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:10px;
+    transition:border-color .15s;
+  }
+  .product-card:last-child{margin-bottom:0;}
+  .product-card.active{border-color:var(--green-mid);background:var(--green-pale);}
+  .product-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .product-check{
+    width:20px;height:20px;
+    border:2px solid var(--border);
+    border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    transition:all .15s;
+    cursor:pointer;
+  }
+  .product-check.checked{background:var(--green-mid);border-color:var(--green-mid);}
+  .product-check.checked::after{content:'✓';font-size:12px;color:#fff;font-weight:700;}
+  .product-name{font-size:14px;font-weight:500;flex:1;}
+  .product-price{font-size:12px;color:var(--gold);font-weight:500;}
+  .qty-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+  .qty-label{font-size:12px;color:var(--muted);}
+  .qty-ctrl{display:flex;align-items:center;gap:0;}
+  .qty-btn{
+    width:32px;height:32px;
+    border:1px solid var(--border);
+    background:#fff;
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    color:var(--green-mid);
+    transition:background .1s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qty-btn:first-child{border-radius:6px 0 0 6px;}
+  .qty-btn:last-child{border-radius:0 6px 6px 0;}
+  .qty-btn:active{background:var(--green-light);}
+  .qty-num{
+    width:40px;height:32px;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    border-left:none;border-right:none;
+    text-align:center;
+    font-size:15px;
+    font-family:'Noto Sans JP',sans-serif;
+    color:var(--text);
+    outline:none;
+  }
+
+  /* 合計 */
+  .total-box{
+    background:var(--green-light);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-top:16px;
+    padding:14px 16px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .total-label{font-size:13px;color:var(--green-dark);font-weight:500;}
+  .total-val{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:600;color:var(--green-dark);}
+
+  /* 送信ボタン */
+  .submit-wrap{margin-top:20px;}
+  .btn-submit{
+    width:100%;
+    padding:16px;
+    background:var(--green-dark);
+    color:#fff;
+    border:none;
+    border-radius:var(--radius);
+    font-size:16px;
+    font-family:'Noto Serif JP',serif;
+    font-weight:600;
+    letter-spacing:0.06em;
+    cursor:pointer;
+    transition:background .15s,transform .1s;
+  }
+  .btn-submit:active{background:var(--green-mid);transform:scale(0.99);}
+  .btn-submit:disabled{background:var(--muted);cursor:not-allowed;transform:none;}
+
+  /* 完了画面 */
+  .done{
+    display:none;
+    text-align:center;
+    padding:48px 20px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-top:24px;
+  }
+  .done.show{display:block;}
+  .done-icon{font-size:48px;margin-bottom:16px;}
+  .done-title{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:600;color:var(--green-dark);margin-bottom:8px;}
+  .done-sub{font-size:14px;color:var(--muted);line-height:1.7;}
+
+  /* エラー */
+  .err{color:#C0392B;font-size:12px;margin-top:4px;display:none;}
+  .err.show{display:block;}
+
+  /* 注意書き */
+  .note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6;}
+
+  /* 保存済み顧客情報バナー */
+  .saved-banner{
+    background:var(--green-light);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-top:16px;
+    padding:14px 16px;
+    display:none;
+  }
+  .saved-banner.show{display:block;}
+  .saved-banner-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .saved-banner-label{font-size:11px;font-weight:500;color:var(--green-mid);letter-spacing:0.06em;}
+  .saved-banner-edit{font-size:12px;color:var(--green-mid);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;}
+  .saved-info{font-size:14px;color:var(--text);line-height:1.7;}
+  .saved-info span{color:var(--muted);font-size:12px;margin-right:4px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">ORDER FORM</div>
+  <h1>ご注文フォーム</h1>
+  <div class="header-sub">ご注文内容を入力してお送りください</div>
+</div>
+
+<div class="container">
+
+  <!-- フォーム本体 -->
+  <form id="orderForm" novalidate>
+
+    <!-- 保存済み顧客情報バナー（2回目以降に表示） -->
+    <div class="saved-banner" id="savedBanner">
+      <div class="saved-banner-top">
+        <div class="saved-banner-label">✓ お客様情報（保存済み）</div>
+        <button class="saved-banner-edit" type="button" onclick="editProfile()">変更する</button>
+      </div>
+      <div class="saved-info" id="savedInfo"></div>
+    </div>
+
+    <!-- お客様情報入力フォーム（初回 or 変更時に表示） -->
+    <div class="section" id="profileSection">
+      <div class="section-head">お客様情報<span id="profileNote" style="font-size:11px;font-weight:400;margin-left:6px;color:var(--green-mid);">— 次回から自動で入力されます</span></div>
+      <div class="section-body">
+        <div class="field">
+          <label>会社名・店舗名 <span class="req">*</span></label>
+          <input type="text" id="company" placeholder="例：山田商店" required>
+          <div class="err" id="err-company">会社名を入力してください</div>
+        </div>
+        <div class="field">
+          <label>ご担当者名 <span class="req">*</span></label>
+          <input type="text" id="name" placeholder="例：山田 太郎" required>
+          <div class="err" id="err-name">ご担当者名を入力してください</div>
+        </div>
+        <div class="field">
+          <label>電話番号</label>
+          <input type="tel" id="tel" placeholder="例：090-1234-5678">
+        </div>
+        <div class="field">
+          <label>メールアドレス</label>
+          <input type="email" id="email" placeholder="例：yamada@example.com">
+        </div>
+      </div>
+    </div>
+
+    <!-- 商品選択 -->
+    <div class="section">
+      <div class="section-head">ご注文商品</div>
+      <div class="section-body" id="products">
+        <!-- JS で生成 -->
+      </div>
+    </div>
+
+    <!-- 合計 -->
+    <div class="total-box">
+      <div class="total-label">合計数量</div>
+      <div class="total-val"><span id="total-qty">0</span> 袋</div>
+    </div>
+
+    <!-- 希望出荷日 -->
+    <div class="section">
+      <div class="section-head">配送・備考</div>
+      <div class="section-body">
+        <div class="field">
+          <label>希望出荷日 <span class="req">*</span></label>
+          <input type="text" id="ship-date" placeholder="例：2025/04/10" required>
+          <div class="err" id="err-ship">希望出荷日を入力してください</div>
+          <div class="note">※ ご注文から最短3営業日後以降でご指定ください</div>
+        </div>
+        <div class="field">
+          <label>備考・特記事項</label>
+          <textarea id="note" placeholder="冷蔵便希望、まとめ配送 など"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button type="submit" class="btn-submit" id="submitBtn">注文を送信する</button>
+    </div>
+
+  </form>
+
+  <!-- 完了メッセージ -->
+  <div class="done" id="done">
+    <div class="done-icon">🌾</div>
+    <div class="done-title">ご注文を受け付けました</div>
+    <div class="done-sub">
+      担当者より確認のご連絡をいたします。<br>
+      しばらくお待ちください。
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// ★ ここを編集してください ★
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/★YOUR_SCRIPT_ID★/exec';
+
+const PRODUCTS = [
+  { id:'koshihikari_30', name:'コシヒカリ 30kg', unit:'袋', price:null },
+  { id:'koshihikari_10', name:'コシヒカリ 10kg', unit:'袋', price:null },
+  { id:'hitomebore_30',  name:'ひとめぼれ 30kg', unit:'袋', price:null },
+  { id:'hitomebore_10',  name:'ひとめぼれ 10kg', unit:'袋', price:null },
+  { id:'akitakomachi_5', name:'あきたこまち 5kg', unit:'袋', price:null },
+  { id:'yukipirika_30',  name:'ゆめぴりか 30kg',  unit:'袋', price:null },
+];
+// ============================================================
+
+function buildProducts() {
+  const wrap = document.getElementById('products');
+  PRODUCTS.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.id = 'card-' + p.id;
+    card.innerHTML = `
+      <div class="product-top">
+        <div class="product-check" id="chk-${p.id}" onclick="toggleProduct('${p.id}')"></div>
+        <div class="product-name">${p.name}</div>
+      </div>
+      <div class="qty-row" id="qrow-${p.id}" style="display:none">
+        <div class="qty-label">数量</div>
+        <div class="qty-ctrl">
+          <button type="button" class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <input class="qty-num" type="number" id="qty-${p.id}" value="1" min="1" max="999"
+            oninput="updateTotal()">
+          <button type="button" class="qty-btn" onclick="changeQty('${p.id}',1)">＋</button>
+        </div>
+        <div class="qty-label">${p.unit}</div>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function toggleProduct(id) {
+  const chk  = document.getElementById('chk-' + id);
+  const qrow = document.getElementById('qrow-' + id);
+  const card = document.getElementById('card-' + id);
+  const on = !chk.classList.contains('checked');
+  chk.classList.toggle('checked', on);
+  qrow.style.display = on ? 'flex' : 'none';
+  card.classList.toggle('active', on);
+  updateTotal();
+}
+
+function changeQty(id, delta) {
+  const inp = document.getElementById('qty-' + id);
+  const v = Math.max(1, (parseInt(inp.value) || 1) + delta);
+  inp.value = v;
+  updateTotal();
+}
+
+function updateTotal() {
+  let total = 0;
+  PRODUCTS.forEach(p => {
+    const chk = document.getElementById('chk-' + p.id);
+    if (chk.classList.contains('checked')) {
+      total += parseInt(document.getElementById('qty-' + p.id).value) || 0;
+    }
+  });
+  document.getElementById('total-qty').textContent = total;
+}
+
+function collectOrder() {
+  const items = [];
+  PRODUCTS.forEach(p => {
+    const chk = document.getElementById('chk-' + p.id);
+    if (chk.classList.contains('checked')) {
+      items.push({
+        name: p.name,
+        qty:  parseInt(document.getElementById('qty-' + p.id).value) || 0
+      });
+    }
+  });
+  return items;
+}
+
+function validate() {
+  let ok = true;
+  const fields = [
+    { id:'company', errId:'err-company' },
+    { id:'name',    errId:'err-name' },
+    { id:'ship-date', errId:'err-ship' },
+  ];
+  fields.forEach(f => {
+    const inp = document.getElementById(f.id);
+    const err = document.getElementById(f.errId);
+    if (!inp.value.trim()) { err.classList.add('show'); ok = false; }
+    else err.classList.remove('show');
+  });
+  return ok;
+}
+
+
+
+// ============================================================
+// お客様情報 localStorage 保存・復元
+// ============================================================
+const PROFILE_KEY = 'rice_order_profile';
+
+function saveProfile() {
+  const profile = {
+    company: document.getElementById('company').value.trim(),
+    name:    document.getElementById('name').value.trim(),
+    tel:     document.getElementById('tel').value.trim(),
+    email:   document.getElementById('email').value.trim(),
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+}
+
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function showSavedBanner(profile) {
+  document.getElementById('profileSection').style.display = 'none';
+  document.getElementById('savedBanner').classList.add('show');
+  const lines = [
+    `<span>会社名</span>${profile.company}`,
+    profile.name  ? `<span>担当者</span>${profile.name}`  : '',
+    profile.tel   ? `<span>電話</span>${profile.tel}`     : '',
+    profile.email ? `<span>Mail</span>${profile.email}`   : '',
+  ].filter(Boolean).join('<br>');
+  document.getElementById('savedInfo').innerHTML = lines;
+  // hiddenで値をセット（バリデーション・送信用）
+  document.getElementById('company').value = profile.company;
+  document.getElementById('name').value    = profile.name;
+  document.getElementById('tel').value     = profile.tel;
+  document.getElementById('email').value   = profile.email;
+}
+
+function editProfile() {
+  document.getElementById('savedBanner').classList.remove('show');
+  document.getElementById('profileSection').style.display = '';
+  document.getElementById('profileNote').textContent = '';
+}
+
+function initProfile() {
+  const profile = loadProfile();
+  if (profile && profile.company) {
+    showSavedBanner(profile);
+  }
+}
+
+// 送信時にプロフィール保存を追加
+const _origSubmit = document.getElementById('orderForm').onsubmit;
+document.getElementById('orderForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validate()) return;
+  const items = collectOrder();
+  if (items.length === 0) { alert('商品を1つ以上選択してください。'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+
+  const payload = {
+    company:  document.getElementById('company').value.trim(),
+    name:     document.getElementById('name').value.trim(),
+    tel:      document.getElementById('tel').value.trim(),
+    email:    document.getElementById('email').value.trim(),
+    shipDate: document.getElementById('ship-date').value.trim(),
+    items:    items,
+    note:     document.getElementById('note').value.trim(),
+  };
+
+  // 送信前にプロフィール保存
+  saveProfile();
+
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:   JSON.stringify(payload),
+    });
+    document.getElementById('orderForm').style.display = 'none';
+    document.getElementById('done').classList.add('show');
+  } catch(err) {
+    alert('送信に失敗しました。通信状況を確認して再度お試しください。');
+    btn.disabled = false;
+    btn.textContent = '注文を送信する';
+  }
+}, true); // capture=true で既存リスナーより先に動かす
+
+buildProducts();
+initProfile();
+</script>
+</body>
+</html>
